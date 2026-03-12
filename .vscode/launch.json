@@ -1,0 +1,49 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Unittest (all)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "unittest",
+      "args": [
+        "discover",
+        "-v",
+        "-s",
+        "Test",
+        "-p",
+        "test_*.py",
+        "-t",
+        "."
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      },
+      "justMyCode": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: Unittest (current file)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "unittest",
+      "args": [
+        "discover",
+        "-v",
+        "-s",
+        "Test",
+        "-p",
+        "${fileBasename}",
+        "-t",
+        "."
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      },
+      "justMyCode": true,
+      "console": "integratedTerminal"
+    }
+  ]
+}
