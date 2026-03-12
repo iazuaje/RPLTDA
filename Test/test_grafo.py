@@ -1,6 +1,6 @@
 from unittest import TestCase
 from Grafo import grafo
-from Grafo import biblioteca
+from Ejercicios.TP0.GrafoBipartito import bipartito
 
 class TestGrafo(TestCase):
     _lista_vertices = ["a", "b", "c", "d", "e", "f"]
@@ -17,5 +17,9 @@ class TestGrafo(TestCase):
         self.grafo.agregar_arista("b", "e")
 
     def test_es_bipartito(self):
-        self.assertTrue(biblioteca.es_bipartito(self.grafo))
+        self.assertTrue(bipartito.es_bipartito(self.grafo))
+    
+    def test_no_es_bipartito(self):
+        self.grafo.agregar_arista("b", "a")
+        self.assertFalse(bipartito.es_bipartito(self.grafo))
 
