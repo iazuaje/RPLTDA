@@ -2,17 +2,17 @@ from itertools import combinations
 from unittest import TestCase
 
 from Grafo import grafo
-import Ejercicios.RPL03_BT.E13_vertex_cover as ej
+import Ejercicios.RPL03_BT.E14_dominating_set_min as ej
 
 
-class TestRPL03VertexCover(TestCase):
+class TestRPL03DominatingSet(TestCase):
 	def _resolver_funcion_objetivo(self):
-		if hasattr(ej, "vertex_cover_min"):
-			return ej.vertex_cover_min
-		if hasattr(ej, "vertex_cover"):
-			return ej.vertex_cover
+		if hasattr(ej, "dominating_set_min"):
+			return ej.dominating_set_min
+		if hasattr(ej, "dominating_set"):
+			return ej.dominating_set
 		self.fail(
-			"No se encontro la funcion objetivo. Defini vertex_cover_min(grafo) o vertex_cover(grafo)"
+			"No se encontro la funcion objetivo. Defini dominating_set_min(grafo) o dominating_set(grafo)"
 		)
 
 	def _resolver(self, g):
@@ -27,24 +27,25 @@ class TestRPL03VertexCover(TestCase):
 			g.agregar_arista(v, w)
 		return g
 
-	def _aristas_unicas(self, g):
-		aristas = set()
+	def _es_dominating_set(self, g, candidatos):
+		dset = set(candidatos)
 		for v in g.obtener_vertices():
-			for w in g.adyacentes(v):
-				aristas.add(frozenset((v, w)))
-		return [tuple(a) for a in aristas]
+			if v in dset:
+				continue
 
-	def _es_vertex_cover(self, g, candidatos):
-		cover = set(candidatos)
-		for arista in self._aristas_unicas(g):
-			v, w = tuple(arista)
-			if v not in cover and w not in cover:
+			dominado = False
+			for w in g.adyacentes(v):
+				if w in dset:
+					dominado = True
+					break
+
+			if not dominado:
 				return False
 		return True
 
 	def _assert_solucion_valida(self, g, solucion):
 		self.assertIsNotNone(solucion)
-		self.assertTrue(self._es_vertex_cover(g, solucion))
+		self.assertTrue(self._es_dominating_set(g, solucion))
 
 		vertices_grafo = set(g.obtener_vertices())
 		for v in solucion:
@@ -58,31 +59,31 @@ class TestRPL03VertexCover(TestCase):
 
 		for k in range(objetivo):
 			for subset in combinations(vertices, k):
-				if self._es_vertex_cover(g, subset):
-					self.fail("La solucion no es minima: existe un vertex cover mas chico")
+				if self._es_dominating_set(g, subset):
+					self.fail("La solucion no es minima: existe un dominating set mas chico")
 
-	def test_grafo_vacio_vertex_cover_vacio(self):
+	def test_grafo_vacio_dominating_set_vacio(self):
 		g = self._crear_grafo([], [])
 		solucion = self._resolver(g)
 
 		self._assert_solucion_minima(g, solucion)
 		self.assertEqual(0, len(set(solucion)))
 
-	def test_un_vertice_sin_aristas_vertex_cover_vacio(self):
+	def test_un_vertice_dominating_set_tamanio_uno(self):
 		g = self._crear_grafo(["A"], [])
 		solucion = self._resolver(g)
 
 		self._assert_solucion_minima(g, solucion)
-		self.assertEqual(0, len(set(solucion)))
+		self.assertEqual(1, len(set(solucion)))
 
-	def test_una_arista_vertex_cover_tamanio_uno(self):
+	def test_una_arista_dominating_set_tamanio_uno(self):
 		g = self._crear_grafo(["A", "B"], [("A", "B")])
 		solucion = self._resolver(g)
 
 		self._assert_solucion_minima(g, solucion)
 		self.assertEqual(1, len(set(solucion)))
 
-	def test_camino_de_cuatro_vertices_vertex_cover_tamanio_dos(self):
+	def test_camino_de_cuatro_vertices_dominating_set_tamanio_dos(self):
 		g = self._crear_grafo(
 			["A", "B", "C", "D"],
 			[("A", "B"), ("B", "C"), ("C", "D")],
@@ -92,7 +93,17 @@ class TestRPL03VertexCover(TestCase):
 		self._assert_solucion_minima(g, solucion)
 		self.assertEqual(2, len(set(solucion)))
 
-	def test_estrella_vertex_cover_centro_unico(self):
+	def test_ciclo_de_cinco_vertices_dominating_set_tamanio_dos(self):
+		g = self._crear_grafo(
+			["A", "B", "C", "D", "E"],
+			[("A", "B"), ("B", "C"), ("C", "D"), ("D", "E"), ("E", "A")],
+		)
+		solucion = self._resolver(g)
+
+		self._assert_solucion_minima(g, solucion)
+		self.assertEqual(2, len(set(solucion)))
+
+	def test_estrella_dominating_set_centro_unico(self):
 		g = self._crear_grafo(
 			["A", "B", "C", "D", "E"],
 			[("A", "B"), ("A", "C"), ("A", "D"), ("A", "E")],
@@ -102,17 +113,7 @@ class TestRPL03VertexCover(TestCase):
 		self._assert_solucion_minima(g, solucion)
 		self.assertEqual({"A"}, solucion)
 
-	def test_ciclo_de_tres_vertices_vertex_cover_tamanio_dos(self):
-		g = self._crear_grafo(
-			["A", "B", "C"],
-			[("A", "B"), ("B", "C"), ("C", "A")],
-		)
-		solucion = self._resolver(g)
-
-		self._assert_solucion_minima(g, solucion)
-		self.assertEqual(2, len(set(solucion)))
-
-	def test_completo_de_cuatro_vertices_vertex_cover_tamanio_tres(self):
+	def test_completo_de_cuatro_vertices_dominating_set_tamanio_uno(self):
 		vertices = ["A", "B", "C", "D"]
 		aristas = []
 		for i in range(len(vertices)):
@@ -123,14 +124,14 @@ class TestRPL03VertexCover(TestCase):
 		solucion = self._resolver(g)
 
 		self._assert_solucion_minima(g, solucion)
-		self.assertEqual(3, len(set(solucion)))
+		self.assertEqual(1, len(set(solucion)))
 
-	def test_tres_aristas_disjuntas_vertex_cover_tamanio_tres(self):
+	def test_dos_componentes_estrella_dominating_set_tamanio_dos(self):
 		g = self._crear_grafo(
-			["A", "B", "C", "D", "E", "F"],
-			[("A", "B"), ("C", "D"), ("E", "F")],
+			["A", "B", "C", "X", "Y", "Z"],
+			[("A", "B"), ("A", "C"), ("X", "Y"), ("X", "Z")],
 		)
 		solucion = self._resolver(g)
 
 		self._assert_solucion_minima(g, solucion)
-		self.assertEqual(3, len(set(solucion)))
+		self.assertEqual(2, len(set(solucion)))
